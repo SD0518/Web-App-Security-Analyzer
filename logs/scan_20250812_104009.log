@@ -1,0 +1,8 @@
+2025-08-12 10:40:12,838 - INFO - Valid URL entered: https://example.com
+2025-08-12 10:40:40,776 - WARNING - Missing security header: Content-Security-Policy
+2025-08-12 10:40:40,777 - WARNING - Missing security header: X-Frame-Options
+2025-08-12 10:40:40,777 - WARNING - Missing security header: X-Content-Type-Options
+2025-08-12 10:40:40,777 - WARNING - Missing security header: Strict-Transport-Security
+2025-08-12 10:40:40,777 - WARNING - Missing security header: Referrer-Policy
+2025-08-12 10:40:40,777 - WARNING - Missing security header: Permissions-Policy
+2025-08-12 10:40:40,778 - WARNING - No CSRF token found in any form.

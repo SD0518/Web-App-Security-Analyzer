@@ -1,0 +1,20 @@
+/* Simple custom styles for Web App Security Analyzer */
+body {
+    background: #f8f9fa;
+}
+.container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 2rem 2.5rem 2.5rem 2.5rem;
+    margin-top: 2rem;
+}
+h1, h2, h4 {
+    color: #2c3e50;
+}
+.fw-bold.text-danger {
+    color: #dc3545 !important;
+}
+.fw-bold.text-success {
+    color: #198754 !important;
+}
