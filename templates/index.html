@@ -46,6 +46,51 @@
             <li>CSRF Token in Forms: <span class="fw-bold {{ 'text-success' if result.csrf else 'text-danger' }}">{{ 'Present' if result.csrf else 'Missing' }}</span></li>
         </ul>
         {% endif %}
+        <!-- TLS/HTTPS Scan Section -->
+        {% if result.tls %}
+        <h4 class="mt-4">TLS/HTTPS Scan</h4>
+        <ul>
+            <li>Hostname: {{ result.tls.hostname }}</li>
+            <li>Certificate Expiry: {{ result.tls.expiry_date }}</li>
+            <li>Days Left: {{ result.tls.days_left }}</li>
+            <li>TLS Protocol: {{ result.tls.protocol }}</li>
+        </ul>
+        {% endif %}
+
+        <!-- Cookie Security Flags Section -->
+        <h4 class="mt-4">Cookie Security Flags</h4>
+        {% if result.cookies and result.cookies.found %}
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Secure</th>
+                        <th>HttpOnly</th>
+                        <th>SameSite</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cookie in result.cookies.cookies %}
+                    <tr>
+                        <td>{{ cookie.name }}</td>
+                        <td>{{ 'Yes' if cookie.secure else 'No' }}</td>
+                        <td>{{ 'Yes' if cookie.httponly else 'No' }}</td>
+                        <td>{{ cookie.samesite if cookie.samesite else 'No' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No cookies found for this site.</p>
+        {% endif %}
+
+        <!-- Robots.txt & Path Probing Section -->
+        <h4 class="mt-4">robots.txt & Path Probing</h4>
+        <ul>
+            {% for finding in result.robots %}
+                <li>{{ finding }}</li>
+            {% endfor %}
+        </ul>
     </div>
 </body>
 </html>

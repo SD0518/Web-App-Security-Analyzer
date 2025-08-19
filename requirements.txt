@@ -4,3 +4,4 @@ python-nmap
 reportlab
 pyfiglet
 colorama
+prettytable
