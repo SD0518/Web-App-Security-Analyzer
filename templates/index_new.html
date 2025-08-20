@@ -1,0 +1,552 @@
+{% extends "base_new.html" %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Scan Form Section -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="scan-form">
+                <h3 class="mb-4 text-center">
+                    <i class="bi bi-search me-2 text-primary"></i>
+                    Security Scan
+                </h3>
+                
+                <!-- URL Input Form -->
+                <form method="post" id="scanForm">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="bi bi-globe"></i>
+                        </span>
+                        <input type="url" class="form-control form-control-lg" 
+                               id="url" name="url" 
+                               placeholder="https://example.com" 
+                               required>
+                        <button type="submit" class="btn btn-primary btn-lg px-4">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Start Scan
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Error Message with enhanced styling -->
+                {% if error %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Error:</strong> {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Scan Results Section -->
+    {% if result %}
+    <div class="fade-in">
+        <!-- Results Header with Help and Download PDF Buttons -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="bi bi-clipboard-data me-2 text-success"></i>
+                Scan Results for <span class="text-primary">{{ result.url }}</span>
+            </h2>
+            <div class="d-flex gap-2">
+                <!-- Help Button -->
+                <button type="button" class="btn btn-outline-info btn-lg" 
+                        data-bs-toggle="modal" data-bs-target="#helpModal">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Help
+                </button>
+                <!-- PDF Download Button -->
+                <a href="/download-report?url={{ result.url|urlencode }}" 
+                   class="btn btn-outline-danger btn-lg">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>
+                    Download PDF Report
+                </a>
+            </div>
+        </div>
+
+        <!-- Enhanced 3-column layout with reduced height cards -->
+        <div class="row g-4 mb-5">
+            <!-- Security Headers Section - Enhanced Card -->
+            <div class="col-lg-4 mb-4">
+                <div class="security-card compact-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-shield-lock me-2"></i>
+                            Security Headers
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="fw-semibold">Header</th>
+                                        <th class="fw-semibold text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for header, missing in result.headers.items() %}
+                                    <tr>
+                                        <td class="fw-medium small">{{ header }}</td>
+                                        <td class="text-center">
+                                            {% if missing %}
+                                                <span class="badge badge-high">
+                                                    <i class="bi bi-x-circle me-1"></i>Missing
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-safe">
+                                                    <i class="bi bi-check-circle me-1"></i>Present
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vulnerability Detection Section - Enhanced Card -->
+            <div class="col-lg-4 mb-4">
+                <div class="security-card compact-card">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-bug me-2"></i>
+                            Vulnerability Detection
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="fw-semibold">Vulnerability Type</th>
+                                        <th class="fw-semibold text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-medium">SQL Injection</td>
+                                        <td class="text-center">
+                                            {% if result.sqli %}
+                                                <span class="badge badge-high">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>Vulnerable
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-safe">
+                                                    <i class="bi bi-shield-check me-1"></i>Safe
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">Cross-Site Scripting</td>
+                                        <td class="text-center">
+                                            {% if result.xss %}
+                                                <span class="badge badge-high">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i>Vulnerable
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-safe">
+                                                    <i class="bi bi-shield-check me-1"></i>Safe
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-medium">CSRF Protection</td>
+                                        <td class="text-center">
+                                            {% if result.csrf %}
+                                                <span class="badge badge-safe">
+                                                    <i class="bi bi-check-circle me-1"></i>Protected
+                                                </span>
+                                            {% else %}
+                                                <span class="badge badge-medium">
+                                                    <i class="bi bi-exclamation-circle me-1"></i>Missing
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TLS/HTTPS Scan Section - Enhanced Card -->
+            <div class="col-lg-4 mb-4">
+                <div class="security-card compact-card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-lock me-2"></i>
+                            TLS/HTTPS Certificate
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if result.tls %}
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="fw-semibold">Property</th>
+                                            <th class="fw-semibold">Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="fw-medium">Hostname</td>
+                                            <td><strong>{{ result.tls.hostname }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium">Certificate Expiry</td>
+                                            <td><strong class="small">{{ result.tls.expiry_date }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium">Days Remaining</td>
+                                            <td>
+                                                {% if result.tls.days_left < 30 %}
+                                                    <span class="badge badge-high">{{ result.tls.days_left }} days</span>
+                                                {% elif result.tls.days_left < 90 %}
+                                                    <span class="badge badge-medium">{{ result.tls.days_left }} days</span>
+                                                {% else %}
+                                                    <span class="badge badge-safe">{{ result.tls.days_left }} days</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium">TLS Protocol</td>
+                                            <td><strong>{{ result.tls.protocol }}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-3">
+                                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2 mb-0 small">TLS/HTTPS information not available</p>
+                                <small class="text-muted">This may be an HTTP-only site</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cookie Security Flags Section - Fixed Table Structure -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="security-card">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-cookie me-2"></i>
+                            Cookie Security Flags Analysis
+                        </h5>
+                        {% if result.cookies and result.cookies.found %}
+                            <span class="badge bg-light text-dark">
+                                {{ result.cookies.cookies|length }} Cookie(s) Found
+                            </span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if result.cookies and result.cookies.found %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th scope="col" class="text-center">
+                                                <i class="bi bi-tag me-2"></i>Cookie Name
+                                            </th>
+                                            <th scope="col" class="text-center">
+                                                <i class="bi bi-shield me-2"></i>Secure Flag
+                                            </th>
+                                            <th scope="col" class="text-center">
+                                                <i class="bi bi-eye-slash me-2"></i>HttpOnly Flag
+                                            </th>
+                                            <th scope="col" class="text-center">
+                                                <i class="bi bi-diagram-3 me-2"></i>SameSite Attribute
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for cookie in result.cookies.cookies %}
+                                        <tr>
+                                            <td class="text-center align-middle">
+                                                <span class="badge bg-secondary fs-6">{{ cookie.name }}</span>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                {% if cookie.secure %}
+                                                    <span class="badge bg-success fs-6">
+                                                        <i class="bi bi-check-circle me-1"></i>Secure
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger fs-6">
+                                                        <i class="bi bi-x-circle me-1"></i>Not Secure
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                {% if cookie.httponly %}
+                                                    <span class="badge bg-success fs-6">
+                                                        <i class="bi bi-check-circle me-1"></i>HttpOnly
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger fs-6">
+                                                        <i class="bi bi-x-circle me-1"></i>Not HttpOnly
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                {% if cookie.samesite %}
+                                                    <span class="badge bg-success fs-6">
+                                                        <i class="bi bi-check-circle me-1"></i>{{ cookie.samesite|title }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-warning fs-6">
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>Not Set
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Cookie Security Summary -->
+                            <div class="mt-4 p-3 bg-light rounded border">
+                                <h6 class="text-muted mb-3 text-center">
+                                    <i class="bi bi-bar-chart me-2"></i>Security Summary
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <div class="border-end">
+                                            <div class="fw-bold text-primary fs-4">{{ result.cookies.cookies|length }}</div>
+                                            <small class="text-muted">Total Cookies</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="border-end">
+                                            <div class="fw-bold text-success fs-4">
+                                                {{ result.cookies.cookies|selectattr('secure')|list|length }}
+                                            </div>
+                                            <small class="text-muted">Secure Cookies</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="fw-bold text-info fs-4">
+                                            {{ result.cookies.cookies|selectattr('httponly')|list|length }}
+                                        </div>
+                                        <small class="text-muted">HttpOnly Cookies</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-info-circle text-muted" style="font-size: 4rem;"></i>
+                                <h5 class="text-muted mt-3">No Cookies Found</h5>
+                                <p class="text-muted mb-0">This website doesn't set any cookies, or they weren't captured during the scan.</p>
+                                <small class="text-muted">Try scanning a different website that uses cookies for authentication or tracking.</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Robots.txt & Path Probing Section - Collapsible -->
+        <div class="row">
+            <div class="col-12">
+                <div class="security-card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="card-title mb-0">
+                            <button class="btn btn-link text-white text-decoration-none p-0 fw-bold" 
+                                    type="button" data-bs-toggle="collapse" 
+                                    data-bs-target="#robotsCollapse">
+                                <i class="bi bi-robot me-2"></i>
+                                robots.txt & Path Probing
+                                <i class="bi bi-chevron-down ms-2"></i>
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="collapse show" id="robotsCollapse">
+                        <div class="card-body">
+                            {% if result.robots %}
+                                <div class="bg-light p-3 rounded">
+                                    {% for finding in result.robots %}
+                                        <div class="d-flex align-items-center mb-2">
+                                            {% if finding.startswith('[+]') %}
+                                                <i class="bi bi-check-circle text-success me-2"></i>
+                                            {% elif finding.startswith('[!]') %}
+                                                <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                                            {% elif finding.startswith('[?]') %}
+                                                <i class="bi bi-question-circle text-warning me-2"></i>
+                                            {% elif finding.startswith('[~]') %}
+                                                <i class="bi bi-lock text-info me-2"></i>
+                                            {% else %}
+                                                <i class="bi bi-dot text-muted me-2"></i>
+                                            {% endif %}
+                                            <code class="small">{{ finding }}</code>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-4">
+                                    <i class="bi bi-info-circle text-muted" style="font-size: 3rem;"></i>
+                                    <p class="text-muted mt-3 mb-0">No robots.txt findings available.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="helpModalLabel">
+                    <i class="bi bi-question-circle me-2"></i>
+                    Security Scan Help Guide
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Security Headers Help -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary">
+                        <i class="bi bi-shield-lock me-2"></i>Security Headers
+                    </h6>
+                    <p class="small text-muted">Headers that protect against common web vulnerabilities:</p>
+                    <ul class="small">
+                        <li><strong>Content-Security-Policy:</strong> Prevents XSS attacks by controlling resource loading</li>
+                        <li><strong>X-Frame-Options:</strong> Prevents clickjacking by controlling iframe embedding</li>
+                        <li><strong>X-Content-Type-Options:</strong> Prevents MIME sniffing attacks</li>
+                        <li><strong>Strict-Transport-Security:</strong> Enforces HTTPS connections</li>
+                        <li><strong>Referrer-Policy:</strong> Controls referrer information sent with requests</li>
+                        <li><strong>Permissions-Policy:</strong> Controls browser feature access</li>
+                    </ul>
+                </div>
+
+                <!-- Vulnerability Detection Help -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-warning">
+                        <i class="bi bi-bug me-2"></i>Vulnerability Detection
+                    </h6>
+                    <ul class="small">
+                        <li><strong>SQL Injection:</strong> Malicious SQL code injection into database queries</li>
+                        <li><strong>Cross-Site Scripting (XSS):</strong> Injection of malicious scripts into web pages</li>
+                        <li><strong>CSRF Protection:</strong> Prevents unauthorized actions on behalf of authenticated users</li>
+                    </ul>
+                </div>
+
+                <!-- TLS/HTTPS Help -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-success">
+                        <i class="bi bi-lock me-2"></i>TLS/HTTPS Certificate
+                    </h6>
+                    <ul class="small">
+                        <li><strong>Certificate Expiry:</strong> When the SSL certificate expires</li>
+                        <li><strong>Days Remaining:</strong> Time until expiration (renew if < 30 days)</li>
+                        <li><strong>TLS Protocol:</strong> Encryption protocol version (TLS 1.2+ recommended)</li>
+                    </ul>
+                </div>
+
+                <!-- Cookie Security Help -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-info">
+                        <i class="bi bi-cookie me-2"></i>Cookie Security Flags
+                    </h6>
+                    <ul class="small">
+                        <li><strong>Secure Flag:</strong> Cookies only sent over HTTPS connections</li>
+                        <li><strong>HttpOnly Flag:</strong> Prevents JavaScript access to cookies</li>
+                        <li><strong>SameSite Attribute:</strong> Controls cross-site cookie behavior (Strict/Lax/None)</li>
+                    </ul>
+                </div>
+
+                <!-- Risk Priority -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-dark">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Risk Priority Guide
+                    </h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <span class="badge bg-danger me-2">Critical</span>
+                            <small>SQL Injection, XSS vulnerabilities</small>
+                        </div>
+                        <div class="col-6">
+                            <span class="badge bg-warning me-2">Medium</span>
+                            <small>Missing CSRF, Cookie flags</small>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <span class="badge bg-warning me-2">High</span>
+                            <small>Missing security headers</small>
+                        </div>
+                        <div class="col-6 mt-2">
+                            <span class="badge bg-success me-2">Low</span>
+                            <small>Information disclosure</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-light p-3 rounded">
+                    <h6 class="fw-bold mb-2">
+                        <i class="bi bi-lightbulb me-2"></i>Quick Actions
+                    </h6>
+                    <ul class="small mb-0">
+                        <li>Focus on <span class="badge bg-danger">Critical</span> and <span class="badge bg-warning">High</span> issues first</li>
+                        <li>Download the PDF report for detailed documentation</li>
+                        <li>Consult with your development team for implementation</li>
+                        <li>Re-scan after fixes to verify improvements</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info">
+                    <i class="bi bi-download me-1"></i>Download Help Guide
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay for better UX -->
+<div id="loadingOverlay" class="d-none">
+    <div class="d-flex justify-content-center align-items-center position-fixed top-0 start-0 w-100 h-100" 
+         style="background: rgba(0,0,0,0.7); z-index: 9999;">
+        <div class="text-center text-white">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+            <h4>Scanning Security...</h4>
+            <p>Please wait while we analyze the target URL</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Enhanced form submission with loading state
+    document.getElementById('scanForm').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').classList.remove('d-none');
+    });
+    
+    // Auto-hide alerts after 5 seconds
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert-dismissible');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+{% endblock %}

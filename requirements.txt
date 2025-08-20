@@ -1,3 +1,4 @@
+flask
 requests
 beautifulsoup4
 python-nmap
@@ -5,3 +6,4 @@ reportlab
 pyfiglet
 colorama
 prettytable
+validators

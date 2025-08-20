@@ -1,0 +1,87 @@
+/* Enhanced Security Analyzer Styles */
+
+/* Additional animations and transitions */
+.security-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.security-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced badge styling */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Pulse animation for critical items */
+.badge-high {
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* Gradient backgrounds for different severity levels */
+.severity-gradient-high {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+}
+
+.severity-gradient-medium {
+    background: linear-gradient(135deg, #feca57, #ff9ff3);
+}
+
+.severity-gradient-low {
+    background: linear-gradient(135deg, #48dbfb, #0abde3);
+}
+
+.severity-gradient-safe {
+    background: linear-gradient(135deg, #1dd1a1, #10ac84);
+}
+
+/* Enhanced table hover effects */
+.security-table tbody tr:hover {
+    background: linear-gradient(90deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.05));
+    transform: scale(1.01);
+}
+
+/* Loading spinner customization */
+.spinner-border {
+    border-width: 0.25rem;
+}
+
+/* Enhanced form styling */
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Responsive text sizing */
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Dark mode support (optional enhancement) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1a1a1a;
+        --card-shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.075);
+    }
+    
+    .security-card {
+        background-color: #2d2d2d;
+        color: #ffffff;
+    }
+}

@@ -1,20 +1,41 @@
 /* Simple custom styles for Web App Security Analyzer */
 body {
-    background: #f8f9fa;
+    background: linear-gradient(120deg, #10141f 0%, #1b2338 50%, #0e141f 100%);
+    min-height: 100vh;
 }
-.container {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    padding: 2rem 2.5rem 2.5rem 2.5rem;
-    margin-top: 2rem;
+.app-hero {
+    background: radial-gradient(1200px 400px at 15% -20%, rgba(13,110,253,0.25), transparent),
+                radial-gradient(900px 300px at 85% -10%, rgba(25,135,84,0.25), transparent),
+                linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0));
+    color: #f8f9fa;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-h1, h2, h4 {
-    color: #2c3e50;
+main.container, .container .card {
+    background: #0f1524;
+    color: #e9ecef;
+}
+.card {
+    border: 1px solid rgba(255,255,255,0.08);
+}
+.card-header {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: #e9ecef;
+}
+.table thead th {
+    color: #cfd6df;
+}
+.table-bordered, .table-bordered > :not(caption) > * {
+    border-color: rgba(255,255,255,0.15);
+}
+h1, h2, h4, h3 {
+    color: #cfd6df;
 }
 .fw-bold.text-danger {
-    color: #dc3545 !important;
+    color: #ff6b6b !important;
 }
 .fw-bold.text-success {
-    color: #198754 !important;
+    color: #51cf66 !important;
 }
